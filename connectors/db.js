@@ -1,5 +1,3 @@
-// import the knex library that will allow us to
-// construct SQL statements
 const knex = require('knex');
 
 // define the configuration settings to connect
@@ -10,8 +8,8 @@ const config = {
     host: 'localhost',
     port: 5432,
     user: 'postgres',
-    password: '1234',
-    database: 'postgres',
+    password: 'farah1234',
+    database: 'naturalux',
   }
 };
 

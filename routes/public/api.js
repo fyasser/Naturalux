@@ -8,7 +8,7 @@ app.post("/api/v1/user", async function (req, res) {
     // Check if user already exists in the system
     const userExists = await db
       .select("*")
-      .from("se_project.users")
+      .from("naturalux.users")
       .where("email", req.body.email);
     if (!isEmpty(userExists)) {
       return res.status(400).json("user exists");
@@ -22,7 +22,7 @@ app.post("/api/v1/user", async function (req, res) {
       roleid: roles.user,
     };
     try {
-      const user = await db("se_project.users").insert(newUser).returning("*");
+      const user = await db("naturalux.users").insert(newUser).returning("*");
 
       return res.status(200).json(user );
     } catch (e) {
@@ -32,55 +32,63 @@ app.post("/api/v1/user", async function (req, res) {
   });
 
   // Register HTTP endpoint to create new user
-  app.post("/api/v1/user/login", async function (req, res) {
-    // get users credentials from the JSON body
-    const { email, password } = req.body;
-    if (!email) {
-      // If the email is not present, return an HTTP unauthorized code
-      return res.status(400).send("email is required");
-    }
-    if (!password) {
-      // If the password is not present, return an HTTP unauthorized code
-      return res.status(400).send("Password is required");
-    }
+  // login code <<farah>>
+ app.post("/api/v1/user/login", async function (req, res) {
+  // Get user credentials from the JSON body
+  const { email, password } = req.body;
 
-    // validate the provided password against the password in the database
-    // if invalid, send an unauthorized code
-    const user = await db
-      .select("*")
-      .from("se_project.users")
-      .where("email", email)
-      .first();
-    if (isEmpty(user)) {
-      return res.status(400).send("user does not exist");
-    }
+  if (!email || !password) {
+    // If email or password is missing, return an HTTP bad request code
+    return res.status(400).send("Email and password are required");
+  }
 
-    if (user.password !== password) {
-      return res.status(401).send("Password does not match");
-    }
+  // Validate the provided password against the password in the database
+  const user = await db
+    .select("*")
+    .from("naturalux.users")
+    .where("email", email)
+    .first();
 
-    // set the expiry time as 15 minutes after the current time
-    const token = v4();
-    const currentDateTime = new Date();
-    const expiresat = new Date(+currentDateTime + 900000); // expire in 15 minutes
+  if (!user) {
+    // If the user doesn't exist, return a user-not-found response
+    return res.status(400).send("User does not exist");
+  }
 
-    // create a session containing information about the user and expiry time
-    const session = {
-      userid: user.id,
-      token,
-      expiresat,
-    };
-    try {
-      await db("se_project.sessions").insert(session);
-      // In the response, set a cookie on the client with the name "session_cookie"
-      // and the value as the UUID we generated. We also set the expiration time.
-      return res
-        .cookie("session_token", token, { expires: expiresat })
-        .status(200)
-        .send("login successful");
-    } catch (e) {
-      console.log(e.message);
-      return res.status(400).send("Could not register user");
-    }
-  });
+  // Check if the password matches (consider using a secure password hashing library)
+  if (user.password !== password) {
+    // If the password is incorrect, return an unauthorized response
+    return res.status(401).send("Password does not match");
+  }
+
+  // Set the expiry time as 15 minutes after the current time
+  const token = v4();
+  const currentDateTime = new Date();
+  const expiresat = new Date(+currentDateTime + 9000000000); // expire in 15 minutes
+
+  // Create a session containing information about the user and expiry time
+  const session = {
+    userid: user.id,
+    token,
+    expiresat,
+  };
+
+  try {
+    await db("naturalux.sessions").insert(session);
+
+    // In the response, set a cookie on the client with the name "session_token"
+    // and the value as the UUID generated. Also set the expiration time.
+    return res
+      .cookie("session_token", token, { expires: expiresat })
+      .status(200)
+      .send("Login successful");
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send("Could not log in the user");
+  }
+});
+
+
+
+   
+
 }
