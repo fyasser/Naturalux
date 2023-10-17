@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS Naturalux.users
+CREATE TABLE IF NOT EXISTS naturalux.users
 (
     id SERIAL NOT NULL,
     firstname TEXT NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS Naturalux.users
     CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS Naturalux.sessions
+CREATE TABLE IF NOT EXISTS naturalux.sessions
 (
     id SERIAL NOT NULL,
     userid INTEGER NOT NULL,
@@ -18,14 +18,14 @@ CREATE TABLE IF NOT EXISTS Naturalux.sessions
     CONSTRAINT sessions_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS Naturalux.roles
+CREATE TABLE IF NOT EXISTS naturalux.roles
 (
     id SERIAL NOT NULL,
     role TEXT NOT NULL,
     CONSTRAINT roles_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS Naturalux.products
+CREATE TABLE IF NOT EXISTS naturalux.products
 (
     id SERIAL NOT NULL,
     name TEXT NOT NULL,
@@ -36,18 +36,19 @@ CREATE TABLE IF NOT EXISTS Naturalux.products
     CONSTRAINT products_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS Naturalux.cart
+CREATE TABLE IF NOT EXISTS naturalux.cart
 (
     productsid SERIAL NOT NULL,
     total INT,
     quantity INT,
     CONSTRAINT cart_pkey PRIMARY KEY (productsid),
-    FOREIGN KEY (productsid) REFERENCES Naturalux.products (id)
+    FOREIGN KEY (productsid) REFERENCES naturalux.products (id)
 );
 
-CREATE TABLE IF NOT EXISTS Naturalux.orders
+CREATE TABLE IF NOT EXISTS naturalux.orders
 (
     id SERIAL NOT NULL,
+    userid int not null,
     status TEXT NOT NULL,
     paymentmethod TEXT NOT NULL,
     orderprice INT NOT NULL,
